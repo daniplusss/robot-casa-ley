@@ -34,10 +34,12 @@ CONTRASENA_LEY = "PAV5792T"
 
 # Credenciales del Bot de Telegram
 TELEGRAM_TOKEN = "8890020053:AAEDQHgYhw1ZzvWuuxARhH8JkqwWv1Lky24"
-TELEGRAM_CHAT_ID = "5223754610"
+
+# Nuevo ID de Telegram configurado
+TELEGRAM_CHAT_ID = "9294849875"
 
 def enviar_mensaje_telegram(mensaje):
-    """Envía una notificación directamente a tu Telegram."""
+    """Envía una notificación directamente al nuevo Telegram configurado."""
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {
@@ -267,9 +269,8 @@ def ejecutar_proceso_facturacion():
         driver.quit()
 
 def escuchar_telegram():
-    """Mantiene el bot en la nube escuchando comandos sin repetir mensajes viejos."""
+    """Mantiene el bot en la nube escuchando comandos del nuevo Telegram configurado."""
     print("🤖 ¡Robot en la nube iniciado y escuchando Telegram!")
-    enviar_mensaje_telegram("🤖 *¡Robot en la nube en línea!* Mándame `/facturar` cuando gustes.")
 
     offset = 0
     try:
