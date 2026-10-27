@@ -1,14 +1,22 @@
 import os
 import time
+import threading
 import gdown
 import requests
+from flask import Flask
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+
+# Servidor Flask para mantener activo el Web Service gratuito en Render
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot de Facturación Casa Ley activo y escuchando en Telegram."
 
 # ==========================================
 # CONFIGURACIÓN Y CREDENCIALES DE ACCESO
@@ -24,7 +32,7 @@ correo_fijo = "anaisabelpv_@hotmail.com"
 USUARIO_LEY = "PAVA690703MV1"
 CONTRASENA_LEY = "PAV5792T"
 
-# Tus credenciales del Bot de Telegram
+# Credenciales del Bot de Telegram
 TELEGRAM_TOKEN = "8890020053:AAEDQHgYhw1ZzvWuuxARhH8JkqwWv1Lky24"
 TELEGRAM_CHAT_ID = "5223754610"
 
@@ -44,7 +52,7 @@ def enviar_mensaje_telegram(mensaje):
 def crear_driver_navegador():
     """Configura Chrome para correr en la nube de forma invisible."""
     options = Options()
-    options.add_argument("--headless")  # Ejecutar sin interfaz gráfica
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
@@ -259,9 +267,9 @@ def ejecutar_proceso_facturacion():
         driver.quit()
 
 def escuchar_telegram():
-    """Mantiene el bot en la nube escuchando comandos 24/7."""
-    print("🤖 ¡Robot en la nube iniciado y escuchando Telegram 24/7!")
-    enviar_mensaje_telegram("🤖 *¡Robot en la nube en línea!* Ya puedes apagar tu laptop. Mándame `/facturar` cuando gustes.")
+    """Mantiene el bot en la nube escuchando comandos."""
+    print("🤖 ¡Robot en la nube iniciado y escuchando Telegram!")
+    enviar_mensaje_telegram("🤖 *¡Robot en la nube en línea (Gratis)!* Mándame `/facturar` cuando gustes.")
 
     offset = 0
     while True:
@@ -280,7 +288,7 @@ def escuchar_telegram():
 
                         if chat_id_remitente == TELEGRAM_CHAT_ID:
                             if texto_mensaje == "/facturar":
-                                enviar_mensaje_telegram("🔄 *Orden recibida en la nube.* Conectando al portal...")
+                                enviar_mensaje_telegram("🔄 *Orden recibida.* Conectando al portal...")
                                 ejecutar_proceso_facturacion()
                             elif texto_mensaje == "/start":
                                 enviar_mensaje_telegram("👋 ¡Hola desde la nube! Usa `/facturar` para ejecutar las facturas.")
@@ -291,4 +299,11 @@ def escuchar_telegram():
         time.sleep(2)
 
 if __name__ == "__main__":
-    escuchar_telegram()
+    # Iniciar el bot de Telegram en un hilo secundario
+    hilo_bot = threading.Thread(target=escuchar_telegram)
+    hilo_bot.daemon = True
+    hilo_bot.start()
+
+    # Iniciar Flask en el puerto que asigna Render de manera gratuita
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
