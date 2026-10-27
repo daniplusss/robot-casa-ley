@@ -267,11 +267,20 @@ def ejecutar_proceso_facturacion():
         driver.quit()
 
 def escuchar_telegram():
-    """Mantiene el bot en la nube escuchando comandos."""
+    """Mantiene el bot en la nube escuchando comandos sin repetir mensajes viejos."""
     print("🤖 ¡Robot en la nube iniciado y escuchando Telegram!")
-    enviar_mensaje_telegram("🤖 *¡Robot en la nube en línea (Gratis)!* Mándame `/facturar` cuando gustes.")
+    enviar_mensaje_telegram("🤖 *¡Robot en la nube en línea!* Mándame `/facturar` cuando gustes.")
 
     offset = 0
+    try:
+        url_inicial = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
+        resp_inicial = requests.get(url_inicial).json()
+        if resp_inicial.get("ok") and resp_inicial.get("result"):
+            ultimo_update = resp_inicial["result"][-1]["update_id"]
+            offset = ultimo_update + 1
+    except Exception as e:
+        print(f"⚠️ Nota al iniciar offset: {e}")
+
     while True:
         try:
             url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates?offset={offset}&timeout=30"
