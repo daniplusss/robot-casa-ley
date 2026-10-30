@@ -1,4 +1,5 @@
+flask
 selenium
 gdown
 requests
-flask
+python-dotenv
